@@ -136,17 +136,13 @@ class Cleaner(BaseCleaner):
         """
         return [
             self._clean_doc(doc)
-            for doc in tqdm.tqdm(
-                self.model.pipe(
+            for doc in self.model.pipe(
                     texts,
                     as_tuples=as_tuples,
                     batch_size=batch_size,
                     disable=disable,
                     component_cfg=component_cfg,
                     n_process=n_process,
-                ),
-                desc="Cleaning Progress",
-                total=len(texts),
             )
         ]
 
