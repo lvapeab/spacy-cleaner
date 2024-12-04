@@ -71,6 +71,7 @@ class Cleaner:
         disable: Iterable[str] = util.SimpleFrozenList(),
         component_cfg: Optional[Dict[str, Dict[str, Any]]] = None,
         n_process: int = 1,
+        show_progress: bool = True,
     ) -> List[str]:
         """Clean a stream of texts.
 
@@ -92,18 +93,21 @@ class Cleaner:
         References:
             https://spacy.io/api/language#pipe
         """
-        return [
-            helpers.clean_doc(doc, *self.processors)
-            for doc in tqdm.tqdm(
-                self.model.pipe(  # type: ignore[call-overload]
+        docs = self.model.pipe(  # type: ignore[call-overload]
                     texts,
                     as_tuples=as_tuples,
                     batch_size=batch_size,
                     disable=disable,
                     component_cfg=component_cfg,
                     n_process=n_process,
-                ),
+                )
+        if show_progress:
+            docs = tqdm.tqdm(
+                docs,
                 desc="Cleaning Progress",
                 total=len(texts),  # type: ignore[arg-type]
             )
+        return [
+            helpers.clean_doc(doc, *self.processors)
+            for doc in docs
         ]
